@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EmojiClicker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #333;
+            background-image: url('https://placehold.co/1920x1080/2a2a2a/ffffff?text=FOND+DU+JEU');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        #gameContainer {
+            background-color: #4a3a2a;
+            border: 4px solid #2a1a0a;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+        #leftColumn {
+            background-color: #2a1a0a;
+            border-right: 2px solid #2a1a0a;
+            position: relative;
+        }
+        .cookie-button {
+            transition: transform 0.1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #8B4513;
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            width: 250px;
+            height: 250px;
+            border: 8px solid #6F4E37;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .cookie-button:active {
+            transform: scale(0.95);
+        }
+        #cookieEmoji {
+            font-size: 100px;
+            line-height: 1;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        #middleColumn {
+            background-color: #3a2a1a;
+        }
+        #rightColumn {
+            background-color: #2a1a0a;
+            border-left: 2px solid #2a1a0a;
+        }
+        #newsTicker {
+            background-color: #1a1a1a;
+            color: #eee;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+        }
+        #newsText {
+            display: inline-block;
+            animation: marquee 15s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .upgrade-card-shop {
+            border: 1px solid #2a1a0a;
+            color: #eee;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .upgrade-card-shop.unaffordable {
+            background-color: #8C2F2F; /* Darker Red */
+            cursor: default;
+        }
+        .upgrade-card-shop.affordable {
+            background-color: #2E8B57; /* Darker Green */
+        }
+        .upgrade-card-shop:hover.affordable {
+            background-color: #246B43;
+        }
+        .upgrade-card-shop .icon {
+            font-size: 2.5rem;
+            margin-right: 0.75rem;
+        }
+        .upgrade-card-shop .info {
+            flex-grow: 1;
+        }
+        .upgrade-card-shop .cost {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        .upgrade-card-shop .owned-count {
+            font-size: 0.8rem;
+            color: #bbb;
+        }
+        .buy-quantity-buttons button {
+            background-color: #5a4a3a;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            margin-left: 0.25rem;
+            transition: background-color 0.2s;
+        }
+        .buy-quantity-buttons button:hover:not(:disabled) {
+            background-color: #6a5a4a;
+        }
+        .buy-quantity-buttons button.active {
+            background-color: #7a6a5a;
+            border: 1px solid #FFD700;
+        }
+
+        button {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-out;
+        }
+        button:hover:not(:disabled) {
+            transform: translateY(-1px);
+        }
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        .modal-content {
+            background-color: #3a2a1a;
+            color: #eee;
+            border: 2px solid #2a1a0a;
+            position: relative;
+        }
+        .modal-close-button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #eee;
+            padding: 0.25rem;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .modal-close-button:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        #autoSaveMessage {
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #notificationMessage {
+            background-color: #3B82F6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        #notificationCloseButton {
+            margin-left: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        @media (max-width: 1024px) {
+            #gameContainer {
+                flex-direction: column;
+            }
+            #leftColumn, #middleColumn, #rightColumn {
+                border-left: none;
+                border-right: none;
+                border-top: 2px solid #2a1a0a;
+                border-bottom: 2px solid #2a1a0a;
+            }
+            #leftColumn {
+                border-top: none;
+            }
+        }
+
+        .trophy-card {
+            background-color: #2a1a0a;
+            border: 1px solid #4a3a2a;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #bbb;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        .trophy-card.unlocked {
+            background-color: #3a2a1a;
+            color: #FFD700;
+            border-color: #FFD700;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .trophy-card img {
+            width: 64px;
+            height: 64px;
+            image-rendering: pixelated;
+            margin-bottom: 0.5rem;
+            filter: grayscale(100%);
+            transition: filter 0.3s ease-in-out;
+        }
+        .trophy-card.unlocked img {
+            filter: grayscale(0%);
+        }
+
+        .genealogy-node {
+            background-color: #3a2a1a;
+            border: 1px solid #2a1a0a;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            text-align: center;
+            color: #eee;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .genealogy-node.locked {
+            background-color: #555;
+            border-color: #444;
+            color: #aaa;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+            opacity: 0.7;
+        }
+        .genealogy-node.unlocked {
+            background-color: #4a3a2a;
+            border-color: #6F4E37;
+        }
+        .genealogy-node.purchased {
+            background-color: #28a745;
+            border-color: #218838;
+            cursor: default;
+        }
+        .genealogy-node:hover:not(.locked):not(.purchased) {
+            background-color: #5a4a3a;
+        }
+        .genealogy-node img {
+            width: 48px;
+            height: 48px;
+            image-rendering: pixelated;
+            margin-bottom: 0.25rem;
+        }
+        .genealogy-node .node-cost {
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        /* General image rendering for all images by default */
+        img {
+            image-rendering: pixelated; /* Default to pixelated for retro feel */
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="notificationMessage" class="fixed top-4 left-1/2 -translate-x-1/2 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 ease-out opacity-0 transform -translate-y-full">
+        <span id="notificationText"></span>
+        <button id="notificationCloseButton" class="ml-4 text-white text-xl leading-none bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+
+    <div id="gameContainer" class="rounded-xl p-4 w-full max-w-7xl flex flex-col lg:flex-row gap-4">
+
+        <div id="leftColumn" class="flex-1 flex flex-col items-center justify-center p-6 rounded-lg text-white">
+            <h2 id="gameTitle" class="text-3xl font-bold text-yellow-300 mb-4">Pâtisserie Pignon Scientifique</h2>
+            <div class="mb-8 text-center">
+                <span id="cookieCount" class="text-6xl font-extrabold text-yellow-500">0</span>
+            </div>
+            
+            <button id="cookieButton" class="cookie-button mb-8">
+                <span id="cookieEmoji" class="text-white"></span>
+            </button>
+
+            <div class="flex flex-col md:flex-row justify-center gap-4 text-gray-300 mb-4">
+                <p class="text-lg">
+                    par seconde : <span id="cookiesPerSecond" class="font-semibold text-green-400">0</span>
+                </p>
+            </div>
+
+            <div class="mt-8 text-center">
+                <h3 class="text-xl font-bold text-yellow-300 mb-2">Fragments d'Emoji</h3>
+                <div class="flex items-center justify-center gap-2 mb-2">
+                    <img src="https://placehold.co/32x32/FFD700/000000?text=%F0%9F%8D%AA" alt="Fragment d'Emoji" class="w-8 h-8 image-rendering:pixelated;">
+                    <span id="emojiFragmentCount" class="text-3xl font-bold text-yellow-500">0</span>
+                </div>
+                <p class="text-sm text-gray-400">Prochain fragment dans : <span id="fragmentTimer" class="font-semibold text-blue-400">--:--:--</span></p>
+            </div>
+        </div>
+
+        <div id="middleColumn" class="flex-[2] p-6 rounded-lg text-white">
+            <div class="flex justify-between items-center text-sm font-semibold text-gray-300 mb-4 border-b border-gray-600 pb-2">
+                <span id="optionsLink" class="cursor-pointer hover:text-white">Options</span>
+                <span id="statsLink" class="cursor-pointer hover:text-white">Statistiques</span>
+                <span id="heritageLink" class="cursor-pointer hover:text-white">Héritage</span>
+                <span id="infoLink" class="cursor-pointer hover:text-white">Infos</span> 
+                <h3 class="text-xl text-yellow-300">Boutique</h3>
+            </div>
+
+            <div id="newsTicker">
+                <span id="newsText">Actualités : saisie d'emojis illégaux, la police déclare : « leur goût est affreux ».</span>
+            </div>
+
+            <div class="mt-4 p-4 bg-gray-700 bg-opacity-30 rounded-lg h-96 overflow-y-auto">
+                <p class="text-gray-400 text-center">
+                    (Zone de contenu principal - Ici se trouveraient les visuels des bâtiments si des images étaient disponibles)
+                </p>
+                <div class="flex flex-col gap-2 mt-4">
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Curseur</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Grand-mère</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Ferme</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Mine</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Usine</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Banque</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Temple</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Tour de sorcier</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Expédition</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Laboratoire d'alchimie</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Portail</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Machine à voyager dans le temps</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Condenseur d'antimatière</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Prisme</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Fabricant de chance</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Moteur fractal</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Idleverse</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Cortex Baker</div>
+                    <div class="h-16 bg-gray-600 rounded-md flex items-center justify-center text-gray-300">Vous</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="rightColumn" class="flex-1 p-6 rounded-lg text-white">
+            <h2 class="text-3xl font-bold text-yellow-300 mb-4">Boutique</h2>
+
+            <div class="flex justify-center mb-4 buy-quantity-buttons">
+                <button id="buyQuantity1" class="bg-blue-600 hover:bg-blue-700 active">Acheter 1</button>
+                <button id="buyQuantity10" class="bg-blue-500 hover:bg-blue-600">Acheter 10</button>
+                <button id="buyQuantity100" class="bg-blue-500 hover:bg-blue-600">Acheter 100</button>
+            </div>
+            <div class="flex items-center justify-center mt-2 mb-4">
+                <input type="number" id="customBuyQuantityInput" class="w-24 p-1 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500 text-center" value="1" min="1">
+                <button id="buyCustomQuantity" class="bg-blue-500 hover:bg-blue-600 ml-2 py-1 px-3 rounded-lg">Acheter Personnalisé</button>
+            </div>
+
+            <div id="shopUpgradesList" class="h-[calc(100vh-250px)] overflow-y-auto pr-2"> </div>
+        </div>
+    </div>
+
+    <div id="customModal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="modal-content rounded-lg shadow-xl p-6 max-w-sm w-full mx-4 text-center">
+            <button id="modalClose" class="modal-close-button">&times;</button>
+            <h3 id="modalTitle" class="text-xl font-bold mb-4"></h3>
+            <p id="modalMessage" class="mb-6"></p>
+            <div class="flex justify-center gap-4">
+                <button id="modalConfirm" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 hidden">Confirmer</button>
+                <button id="modalCancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-5 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 hidden">Annuler</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="heritageModal" class="modal fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="modal-content rounded-lg shadow-xl p-6 max-w-4xl w-full mx-4 text-center">
+            <button id="heritageModalClose" class="modal-close-button">&times;</button>
+            <h3 class="text-3xl font-bold text-yellow-300 mb-4">Héritage</h3>
+            <div class="flex flex-col items-center mb-6">
+                <p class="text-xl text-gray-300 mb-2">Niveau de Prestige : <span id="prestigeLevelDisplay" class="font-bold text-yellow-400">0</span></p>
+                <p class="text-xl text-gray-300 mb-4">Fragments Célestes : <span id="celestialFragmentsDisplay" class="font-bold text-yellow-400">0</span></p>
+                <button id="reincarnateButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-md text-lg">Réincarnation</button>
+                <p class="text-sm text-gray-400 mt-2">Chaque réincarnation vous offre un bonus de puissance de clic permanente de +0.5% par Fragment d'Emoji possédé.</p>
+            </div>
+
+            <h4 class="text-2xl font-bold text-yellow-300 mb-4">Arbre Généalogique des Emojis</h4>
+            <div id="genealogyTree" class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 h-96 overflow-y-auto p-2 border border-gray-600 rounded-lg">
+                </div>
+        </div>
+    </div>
+
+    <div id="autoSaveMessage" class="fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 flex items-center justify-between opacity-0 transition-opacity duration-300 ease-out">
+        Partie sauvegardée automatiquement !
+        <button id="autoSaveCloseButton" class="ml-4 text-white text-base leading-none bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+
+    <script>
+        // --- Global Game State Variables ---
+        let cookies = 0;
+        let cookiesPerClick = 1;
+        let cookiesPerSecond = 0;
+        let totalClicks = 0;
+        let buyQuantity = 1;
+        let gameName = "Pignon Scientifique";
+        let hasCustomizedName = false;
+
+        // --- Heritage/Prestige Variables ---
+        let emojiFragments = 0;
+        let nextFragmentTime = 0; // Timestamp for next fragment availability
+        let prestigeLevel = 0;
+        let permanentCpcBonus = 0; // Total bonus from reincarnations
+        let upgradeMultipliers = {}; // Object to store multipliers for each upgrade type
+
+        // --- Emojis for the main cookie button ---
+        const cookieEmojis = ['🙂', '🤩', '😍', '🥰', '😛', '🤭', '🤫', '😒', '🙄', '😭', '😡', '💩', '💪'];
+
+        // --- Upgrades Data ---
+        const upgrades = {
+            cursor: { name: 'Curseur', baseCost: 15, costMultiplier: 1.15, cps: 0.1, owned: 0, icon: '👆' },
+            grandma: { name: 'Grand-mère', baseCost: 100, costMultiplier: 1.15, cps: 1, owned: 0, icon: '👵' },
+            farm: { name: 'Ferme', baseCost: 1100, costMultiplier: 1.15, cps: 8, owned: 0, icon: '🚜' },
+            mine: { name: 'Mine', baseCost: 12000, costMultiplier: 1.15, cps: 47, owned: 0, icon: '⛏️' },
+            factory: { name: 'Usine', baseCost: 130000, costMultiplier: 1.15, cps: 260, owned: 0, icon: '🏭' },
+            bank: { name: 'Banque', baseCost: 1400000, costMultiplier: 1.15, cps: 1400, owned: 0, icon: '🏦' },
+            temple: { name: 'Temple', baseCost: 20000000, costMultiplier: 1.15, cps: 7800, owned: 0, icon: '🏛️' },
+            wizardTower: { name: 'Tour de sorcier', baseCost: 330000000, costMultiplier: 1.15, cps: 43000, owned: 0, icon: '🧙' },
+            shipment: { name: 'Expédition', baseCost: 5100000000, costMultiplier: 1.15, cps: 210000, owned: 0, icon: '🚀' },
+            alchemyLab: { name: 'Laboratoire d\'alchimie', baseCost: 75000000000, costMultiplier: 1.15, cps: 1700000, owned: 0, icon: '🧪' },
+            portal: { name: 'Portail', baseCost: 1000000000000, costMultiplier: 1.15, cps: 10000000, owned: 0, icon: '🌌' },
+            timeMachine: { name: 'Machine à voyager dans le temps', baseCost: 14000000000000, costMultiplier: 1.15, cps: 65000000, owned: 0, icon: '⏳' },
+            antimatterCondenser: { name: 'Condenseur d\'antimatière', baseCost: 200000000000000, costMultiplier: 1.15, cps: 440000000, owned: 0, icon: '⚛️' },
+            prism: { name: 'Prisme', baseCost: 3300000000000000, costMultiplier: 1.15, cps: 2900000000, owned: 0, icon: '🌈' },
+            chancemaker: { name: 'Fabricant de chance', baseCost: 51000000000000000, costMultiplier: 1.15, cps: 21000000000, owned: 0, icon: '🍀' },
+            fractalEngine: { name: 'Moteur fractal', baseCost: 750000000000000000, costMultiplier: 1.15, cps: 150000000000, owned: 0, icon: '🌀' },
+            idleverse: { name: 'Idleverse', baseCost: 11000000000000000000, costMultiplier: 1.15, cps: 1100000000000, owned: 0, icon: '♾️' },
+            cortexBaker: { name: 'Cortex Baker', baseCost: 140000000000000000000, costMultiplier: 1.15, cps: 8300000000000, owned: 0, icon: '🧠' },
+            you: { name: 'Vous', baseCost: 2000000000000000000000, costMultiplier: 1.15, cps: 64000000000000, owned: 0, icon: '👤' },
+            cursorUpgrade: { name: 'Curseur Amélioré', baseCost: 50, costMultiplier: 1.2, cpc: 1, owned: 0, icon: '🖱️' }
+        };
+
+        // --- Trophies Data ---
+        const trophies = {
+            trophy1: { name: '100 Emojis', threshold: 100, unlocked: false, elementId: 'trophy1', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%99%82' },
+            trophy2: { name: '1K Emojis', threshold: 1000, unlocked: false, elementId: 'trophy2', img: 'https://placehold.co/64x64/FFD700/000000?text=1K%F0%9F%99%82' },
+            trophy3: { name: '10K Emojis', threshold: 10000, unlocked: false, elementId: 'trophy3', img: 'https://placehold.co/64x64/FFD700/000000?text=10K%F0%9F%99%82' },
+            trophy4: { name: '100K Emojis', threshold: 100000, unlocked: false, elementId: 'trophy4', img: 'https://placehold.co/64x64/FFD700/000000?text=100K%F0%9F%99%82' },
+            trophy5: { name: '1 Million Emojis', threshold: 1000000, unlocked: false, elementId: 'trophy5', img: 'https://placehold.co/64x64/FFD700/000000?text=1M%F0%9F%99%82' },
+            trophy6: { name: '10 Millions Emojis', threshold: 10000000, unlocked: false, elementId: 'trophy6', img: 'https://placehold.co/64x64/FFD700/000000?text=10M%F0%9F%99%82' },
+            trophy7: { name: '100 Millions Emojis', threshold: 100000000, unlocked: false, elementId: 'trophy7', img: 'https://placehold.co/64x64/FFD700/000000?text=100M%F0%9F%99%82' },
+            trophy8: { name: '1 Milliard Emojis', threshold: 1000000000, unlocked: false, elementId: 'trophy8', img: 'https://placehold.co/64x64/FFD700/000000?text=1B%F0%9F%99%82' },
+            trophy9: { name: '10 Milliards Emojis', threshold: 10000000000, unlocked: false, elementId: 'trophy9', img: 'https://placehold.co/64x64/FFD700/000000?text=10B%F0%9F%99%82' },
+            trophy10: { name: '100 Milliards Emojis', threshold: 100000000000, unlocked: false, elementId: 'trophy10', img: 'https://placehold.co/64x64/FFD700/000000?text=100B%F0%9F%99%82' },
+            trophy11: { name: '1 Billion Emojis', threshold: 1000000000000, unlocked: false, elementId: 'trophy11', img: 'https://placehold.co/64x64/FFD700/000000?text=1T%F0%9F%99%82' },
+            trophy12: { name: '10 Billions Emojis', threshold: 10000000000000, unlocked: false, elementId: 'trophy12', img: 'https://placehold.co/64x64/FFD700/000000?text=10T%F0%9F%99%82' },
+            trophy13: { name: '100 Billions Emojis', threshold: 100000000000000, unlocked: false, elementId: 'trophy13', img: 'https://placehold.co/64x64/FFD700/000000?text=100T%F0%9F%99%82' },
+            trophy14: { name: '1 Quadrillion Emojis', threshold: 1000000000000000, unlocked: false, elementId: 'trophy14', img: 'https://placehold.co/64x64/FFD700/000000?text=1Qa%F0%9F%99%82' },
+            trophy15: { name: '10 Quadrillions Emojis', threshold: 10000000000000000, unlocked: false, elementId: 'trophy15', img: 'https://placehold.co/64x64/FFD700/000000?text=10Qa%F0%9F%99%82' },
+            trophy16: { name: '100 Quadrillions Emojis', threshold: 100000000000000000, unlocked: false, elementId: 'trophy16', img: 'https://placehold.co/64x64/FFD700/000000?text=100Qa%F0%9F%99%82' },
+            trophy17: { name: '1 Quintillion Emojis', threshold: 1000000000000000000, unlocked: false, elementId: 'trophy17', img: 'https://placehold.co/64x64/FFD700/000000?text=1Qi%F0%9F%99%82' },
+            trophy18: { name: '10 Quintillions Emojis', threshold: 10000000000000000000, unlocked: false, elementId: 'trophy18', img: 'https://placehold.co/64x64/FFD700/000000?text=10Qi%F0%9F%99%82' },
+            trophy19: { name: '100 Quintillions Emojis', threshold: 100000000000000000000, unlocked: false, elementId: 'trophy19', img: 'https://placehold.co/64x64/FFD700/000000?text=100Qi%F0%9F%99%82' },
+            trophy20: { name: '1 Sextillion Emojis', threshold: 1000000000000000000000, unlocked: false, elementId: 'trophy20', img: 'https://placehold.co/64x64/FFD700/000000?text=1Sx%F0%9F%99%82' },
+            trophyCursor: { name: 'Curseur Maître', threshold: 10000, unlocked: false, elementId: 'trophyCursor', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%91%86' },
+            trophyGrandma: { name: 'Armée de Grand-mères', threshold: 1000000, unlocked: false, elementId: 'trophyGrandma', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%91%B5' },
+            trophyFarm: { name: 'Ferme Prospère', threshold: 10000000, unlocked: false, elementId: 'trophyFarm', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8C%BD' },
+            trophyMine: { name: 'Mine d\'Or', threshold: 100000000, unlocked: false, elementId: 'trophyMine', img: 'https://placehold.co/64x64/FFD700/000000?text=%E2%9B%8F%EF%B8%8F' },
+            trophyFactory: { name: 'Usine à Rêves', threshold: 1000000000, unlocked: false, elementId: 'trophyFactory', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8F%AD' },
+            trophyBank: { name: 'Banque Sûre', threshold: 10000000000, unlocked: false, elementId: 'trophyBank', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8F%A6' },
+            trophyTemple: { name: 'Temple Sacré', threshold: 100000000000, unlocked: false, elementId: 'trophyTemple', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8F%9B%EF%B8%8F' },
+            trophyWizardTower: { name: 'Tour Mystique', threshold: 1000000000000, unlocked: false, elementId: 'trophyWizardTower', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%A7%99%E2%80%8D%E2%99%82%EF%B8%8F' },
+            trophyShipment: { name: 'Expédition Galactique', threshold: 10000000000000, unlocked: false, elementId: 'trophyShipment', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%9A%80' },
+            trophyAlchemyLab: { name: 'Alchimiste de Génie', threshold: 100000000000000, unlocked: false, elementId: 'trophyAlchemyLab', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%AA%AC' },
+            trophyPortal: { name: 'Portail Dimensionnel', threshold: 1000000000000000, unlocked: false, elementId: 'trophyPortal', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8C%8C' },
+            trophyTimeMachine: { name: 'Maître du Temps', threshold: 10000000000000000, unlocked: false, elementId: 'trophyTimeMachine', img: 'https://placehold.co/64x64/FFD700/000000?text=%E2%8F%B3' },
+            trophyAntimatterCondenser: { name: 'Condenseur Suprême', threshold: 100000000000000000, unlocked: false, elementId: 'trophyAntimatterCondenser', img: 'https://placehold.co/64x64/FFD700/000000?text=%E2%9A%9B%EF%B8%8F' },
+            trophyPrism: { name: 'Prisme Lumineux', threshold: 1000000000000000000, unlocked: false, elementId: 'trophyPrism', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8C%88' },
+            trophyChancemaker: { name: 'Créateur de Chance', threshold: 10000000000000000000, unlocked: false, elementId: 'trophyChancemaker', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8D%80' },
+            trophyFractalEngine: { name: 'Moteur Fractal', threshold: 100000000000000000000, unlocked: false, elementId: 'trophyFractalEngine', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%8C%80' },
+            trophyIdleverse: { name: 'Idleverse Conquis', threshold: 1000000000000000000000, unlocked: false, elementId: 'trophyIdleverse', img: 'https://placehold.co/64x64/FFD700/000000?text=%E2%99%BF' },
+            trophyCortexBaker: { name: 'Cerveau de Boulanger', threshold: 10000000000000000000000, unlocked: false, elementId: 'trophyCortexBaker', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%A7%A0' },
+            trophyYou: { name: 'Vous Êtes le Maître', threshold: 100000000000000000000000, unlocked: false, elementId: 'trophyYou', img: 'https://placehold.co/64x64/FFD700/000000?text=%F0%9F%A7%91' },
+        };
+
+        // --- Genealogical Tree Nodes Data ---
+        const genealogicalTreeNodes = {
+            node1: { id: 'node1', name: 'Emoji Originel', cost: 1, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%98%83', prerequisites: [], bonusType: 'cpc_global', bonusValue: 0.01, unlocked: true, purchased: false },
+            node2: { id: 'node2', name: 'Curseur Amélioré', cost: 3, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%91%86', prerequisites: ['node1'], bonusType: 'cps_multiplier_cursor', bonusValue: 0.02, unlocked: false, purchased: false },
+            node3: { id: 'node3', name: 'Grand-mère Bienveillante', cost: 5, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%91%B5', prerequisites: ['node2'], bonusType: 'cps_multiplier_grandma', bonusValue: 0.02, unlocked: false, purchased: false },
+            node4: { id: 'node4', name: 'Ferme Fertile', cost: 8, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%BD', prerequisites: ['node3'], bonusType: 'cps_multiplier_farm', bonusValue: 0.02, unlocked: false, purchased: false },
+            node5: { id: 'node5', name: 'Mine Profonde', cost: 12, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%E2%9B%8F%EF%B8%8F', prerequisites: ['node4'], bonusType: 'cps_multiplier_mine', bonusValue: 0.02, unlocked: false, purchased: false },
+            node6: { id: 'node6', name: 'Usine Efficace', cost: 18, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8F%AD', prerequisites: ['node5'], bonusType: 'cps_multiplier_factory', bonusValue: 0.02, unlocked: false, purchased: false },
+            node7: { id: 'node7', name: 'Banque Sûre', cost: 25, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8F%A6', prerequisites: ['node6'], bonusType: 'cps_multiplier_bank', bonusValue: 0.02, unlocked: false, purchased: false },
+            node8: { id: 'node8', name: 'Temple Ancien', cost: 35, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8F%9B%EF%B8%8F', prerequisites: ['node7'], bonusType: 'cps_multiplier_temple', bonusValue: 0.02, unlocked: false, purchased: false },
+            node9: { id: 'node9', name: 'Tour du Sorcier', cost: 50, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%A7%99', prerequisites: ['node8'], bonusType: 'cps_multiplier_wizardTower', bonusValue: 0.02, unlocked: false, purchased: false },
+            node10: { id: 'node10', name: 'Expédition Spatiale', cost: 70, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%9A%80', prerequisites: ['node9'], bonusType: 'cps_multiplier_shipment', bonusValue: 0.02, unlocked: false, purchased: false },
+            node11: { id: 'node11', name: 'Laboratoire Alchimique', cost: 90, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%AA%AC', prerequisites: ['node10'], bonusType: 'cps_multiplier_alchemyLab', bonusValue: 0.02, unlocked: false, purchased: false },
+            node12: { id: 'node12', name: 'Portail Dimensionnel', cost: 120, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%8C', prerequisites: ['node11'], bonusType: 'cps_multiplier_portal', bonusValue: 0.02, unlocked: false, purchased: false },
+            node13: { id: 'node13', name: 'Machine Temporelle', cost: 150, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%E2%8F%B3', prerequisites: ['node12'], bonusType: 'cps_multiplier_timeMachine', bonusValue: 0.02, unlocked: false, purchased: false },
+            node14: { id: 'node14', name: 'Condenseur Antimatière', cost: 190, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%E2%9A%9B%EF%B8%8F', prerequisites: ['node13'], bonusType: 'cps_multiplier_antimatterCondenser', bonusValue: 0.02, unlocked: false, purchased: false },
+            node15: { id: 'node15', name: 'Prisme Lumineux', cost: 240, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%88', prerequisites: ['node14'], bonusType: 'cps_multiplier_prism', bonusValue: 0.02, unlocked: false, purchased: false },
+            node16: { id: 'node16', name: 'Fabricant de Chance', cost: 300, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8D%80', prerequisites: ['node15'], bonusType: 'cps_multiplier_chancemaker', bonusValue: 0.02, unlocked: false, purchased: false },
+            node17: { id: 'node17', name: 'Moteur Fractal', cost: 370, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%80', prerequisites: ['node16'], bonusType: 'cps_multiplier_fractalEngine', bonusValue: 0.02, unlocked: false, purchased: false },
+            node18: { id: 'node18', name: 'Idleverse Infini', cost: 450, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%E2%99%BF', prerequisites: ['node17'], bonusType: 'cps_multiplier_idleverse', bonusValue: 0.02, unlocked: false, purchased: false },
+            node19: { id: 'node19', name: 'Cortex Boulanger', cost: 550, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%A7%A0', prerequisites: ['node18'], bonusType: 'cps_multiplier_cortexBaker', bonusValue: 0.02, unlocked: false, purchased: false },
+            node20: { id: 'node20', name: 'Vous, le Maître', cost: 650, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%A7%91', prerequisites: ['node19'], bonusType: 'cps_multiplier_you', bonusValue: 0.02, unlocked: false, purchased: false },
+            node21: { id: 'node21', name: 'Curseur Cosmique', cost: 750, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%91%89', prerequisites: ['node20'], bonusType: 'cps_multiplier_cursor', bonusValue: 0.03, unlocked: false, purchased: false },
+            node22: { id: 'node22', name: 'Grand-mère Galactique', cost: 850, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%91%B5%F0%9F%8C%8C', prerequisites: ['node21'], bonusType: 'cps_multiplier_grandma', bonusValue: 0.03, unlocked: false, purchased: false },
+            node23: { id: 'node23', name: 'Ferme Stellaire', cost: 950, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%BE', prerequisites: ['node22'], bonusType: 'cps_multiplier_farm', bonusValue: 0.03, unlocked: false, purchased: false },
+            node24: { id: 'node24', name: 'Mine de Diamants', cost: 1100, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%92%8E', prerequisites: ['node23'], bonusType: 'cps_multiplier_mine', bonusValue: 0.03, unlocked: false, purchased: false },
+            node25: { id: 'node25', name: 'Usine Céleste', cost: 1250, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%8C%F0%9F%8F%AD', prerequisites: ['node24'], bonusType: 'cps_multiplier_factory', bonusValue: 0.03, unlocked: false, purchased: false },
+            node26: { id: 'node26', name: 'Banque Universelle', cost: 1400, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8F%A6%F0%9F%8C%8C', prerequisites: ['node25'], bonusType: 'cps_multiplier_bank', bonusValue: 0.03, unlocked: false, purchased: false },
+            node27: { id: 'node27', name: 'Temple Cosmique', cost: 1600, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8F%9B%F0%9F%8C%8C', prerequisites: ['node26'], bonusType: 'cps_multiplier_temple', bonusValue: 0.03, unlocked: false, purchased: false },
+            node28: { id: 'node28', name: 'Tour des Étoiles', cost: 1800, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%9F', prerequisites: ['node27'], bonusType: 'cps_multiplier_wizardTower', bonusValue: 0.03, unlocked: false, purchased: false },
+            node29: { id: 'node29', name: 'Expédition Intergalactique', cost: 2000, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%9A%80%F0%9F%8C%8C', prerequisites: ['node28'], bonusType: 'cps_multiplier_shipment', bonusValue: 0.03, unlocked: false, purchased: false },
+            node30: { id: 'node30', name: 'Laboratoire Ultime', cost: 2200, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%AA%AC%F0%9F%8C%8C', prerequisites: ['node29'], bonusType: 'cps_multiplier_alchemyLab', bonusValue: 0.03, unlocked: false, purchased: false },
+            node31: { id: 'node31', name: 'Portail Omega', cost: 2500, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%8C%F0%9F%94%86', prerequisites: ['node30'], bonusType: 'cps_multiplier_portal', bonusValue: 0.04, unlocked: false, purchased: false },
+            node32: { id: 'node32', name: 'Maître du Multivers', cost: 3000, img: 'https://placehold.co/48x48/8B4513/FFFFFF?text=%F0%9F%8C%8C%F0%9F%8C%8D', prerequisites: ['node31'], bonusType: 'cpc_global', bonusValue: 0.05, unlocked: false, purchased: false },
+        };
+
+        // --- DOM Elements ---
+        const gameTitleElement = document.getElementById('gameTitle');
+        const cookieCountElement = document.getElementById('cookieCount');
+        const cookiesPerSecondElement = document.getElementById('cookiesPerSecond');
+        const cookieButton = document.getElementById('cookieButton');
+        const cookieEmojiElement = document.getElementById('cookieEmoji');
+
+        const shopUpgradesList = document.getElementById('shopUpgradesList');
+
+        const buyQuantity1Button = document.getElementById('buyQuantity1');
+        const buyQuantity10Button = document.getElementById('buyQuantity10');
+        const buyQuantity100Button = document.getElementById('buyQuantity100');
+        const customBuyQuantityInput = document.getElementById('customBuyQuantityInput');
+        const buyCustomQuantityButton = document.getElementById('buyCustomQuantity');
+
+        // Links for modal triggers
+        const optionsLink = document.getElementById('optionsLink');
+        const statsLink = document.getElementById('statsLink');
+        const heritageLink = document.getElementById('heritageLink');
+        const infoLink = document.getElementById('infoLink');
+
+        const customModal = document.getElementById('customModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalConfirm = document.getElementById('modalConfirm');
+        const modalCancel = document.getElementById('modalCancel');
+        const modalClose = document.getElementById('modalClose');
+
+        const heritageModal = document.getElementById('heritageModal');
+        const heritageModalClose = document.getElementById('heritageModalClose');
+        const reincarnateButton = document.getElementById('reincarnateButton');
+        const prestigeLevelDisplay = document.getElementById('prestigeLevelDisplay');
+        const celestialFragmentsDisplay = document.getElementById('celestialFragmentsDisplay');
+        const genealogyTreeContainer = document.getElementById('genealogyTree');
+
+        const emojiFragmentCountElement = document.getElementById('emojiFragmentCount');
+        const fragmentTimerElement = document.getElementById('fragmentTimer');
+
+        const autoSaveMessageElement = document.getElementById('autoSaveMessage');
+        const autoSaveCloseButton = document.getElementById('autoSaveCloseButton');
+
+        // Notification elements
+        const notificationMessageElement = document.getElementById('notificationMessage');
+        const notificationTextElement = document.getElementById('notificationText');
+        const notificationCloseButton = document.getElementById('notificationCloseButton');
+        let notificationTimeout;
+
+        // News ticker elements
+        const newsTextElement = document.getElementById('newsText');
+        const newsMessages = [
+            "Actualités : saisie d'emojis illégaux, la police déclare : « leur goût est affreux ».",
+            "Nouvelle : Le marché des emojis est en plein essor ! Les prix montent en flèche.",
+            "Annonce : Un nouveau type d'emoji a été découvert dans les profondeurs de la mine.",
+            "Événement : La grande compétition de clic d'emojis commence demain !",
+            "Flash info : Un emoji géant a été aperçu dans le ciel, les scientifiques sont perplexes. 🤔",
+            "Météo : Prévisions d'une pluie d'emojis doux et sucrés sur la région. 🍪🌧️",
+            "Insolite : Une grand-mère a transformé sa ferme en usine à emojis, la production explose ! 👵🏭",
+            "Alerte : Des emojis rebelles tentent de s'échapper de la pâtisserie ! 🏃💨",
+            "Conseil du jour : Pour plus d'emojis, cliquez plus fort ! 💪",
+            "Blague du jour : Pourquoi l'emoji n'a-t-il pas traversé la route ? Parce qu'il était déjà sur votre écran ! 😂",
+            "Tendance : Les emojis arc-en-ciel sont le nouveau hit de la mode. 🌈",
+            "Découverte : Un portail vers une dimension pleine d'emojis a été ouvert ! 🌌",
+            "Rumeur : Les machines à voyager dans le temps sont utilisées pour voler des emojis du futur. ⏳",
+            "Économie : Le cours de l'emoji a atteint un sommet historique ! 📈",
+            "Santé : Manger trop d'emojis peut provoquer une overdose de bonheur. 😄 overdose",
+            "Culture : Une nouvelle exposition d'art pixelisé d'emojis ouvre ses portes. 🖼️",
+            "Science : Des chercheurs tentent de comprendre la composition exacte des emojis. 🔬",
+            "Environnement : Campagne de nettoyage des emojis perdus dans la nature. ♻️",
+            "Sport : Le championnat du monde de lancer d'emojis est en cours. 🏅",
+            "Cuisine : Recette secrète pour des emojis encore plus délicieux révélée ! 👨‍🍳",
+            "Technologie : De nouveaux curseurs ultra-rapides pour cliquer sur les emojis. ⚡",
+            "Politique : Débat sur la régulation de la production d'emojis. 🏛️",
+            "Voyage : Des expéditions sont organisées vers la source des emojis rares. 🚀",
+            "Mystère : Des emojis disparaissent sans laisser de trace... Coïncidence ? Je ne crois pas. 👻",
+            "Urgent : Un groupe d'emojis a pris le contrôle de la radio locale. 📻",
+            "Société : Les emojis sont devenus la monnaie universelle. 💰",
+            "Mode : Les chapeaux en forme d'emoji sont la dernière folie. 🎩",
+            "Animaux : Un chat a été entraîné à cliquer sur les emojis. 🐱🖱️",
+            "Jardinage : Cultivez vos propres emojis dans votre jardin. 🌻",
+            "Aventure : Partez à la chasse aux emojis légendaires ! 🗺️",
+            "Musique : Un nouvel album entièrement composé de sons d'emojis.🎶",
+            "Architecture : Construction d'un gratte-ciel en forme d'emoji. 🏢",
+            "Sécurité : Des mesures renforcées pour protéger les emojis des voleurs. 🔒",
+            "Éducation : Des écoles spécialisées dans l'étude des emojis. 📚",
+            "Humour : Pourquoi l'emoji triste est-il allé à la fête ? Parce qu'il était déjà sur votre écran ! 😂",
+            "Info : Les emojis sont plus intelligents que vous ne le pensez. Ils lisent les actualités ! 🤓",
+            "Chut : On dit que les emojis parlent entre eux la nuit... 🤫",
+            "Attention : Ne laissez pas vos emojis sans surveillance, ils pourraient s'auto-cliquer ! 😈",
+            "Rêve : J'ai rêvé que j'étais un emoji, et je cliquais sur des humains. C'était bizarre. 🤯",
+            "Record : Le plus grand nombre d'emojis cliqués en une seconde a été battu ! 🏆",
+            "Santé mentale : Le clic d'emojis est recommandé pour réduire le stress. 🧘",
+            "Philosophie : Quel est le sens de la vie pour un emoji ? Clic, clic, clic. 🤔",
+            "Art : Un artiste a créé une sculpture géante d'un emoji en colère. 😠",
+            "Gastronomie : Les emojis sont désormais servis dans les restaurants étoilés. 🍽️",
+            "Mode de vie : Adoptez un emoji de compagnie, ils sont très affectueux. 🥰",
+            "Débat : Faut-il donner des droits aux emojis ? La question divise. ⚖️",
+            "Énigme : Qu'est-ce qui est jaune et qui attend ? Un emoji qui attend d'être cliqué ! 🟡⏳",
+            "Innovation : Des emojis volants pour livrer vos commandes. 🚁",
+            "Témoignage : « Ma vie a changé depuis que j'ai découvert les emojis ! » - Un joueur anonyme. ✨",
+            "Alerte spoiler : Le prochain emoji sera encore plus mignon ! 🤫",
+            "Conseil financier : Investissez dans les emojis, c'est l'avenir ! 💸",
+            "Faits divers : Un emoji a gagné à la loterie, il a acheté une île paradisiaque. 🏝️",
+            "Révélation : Les grand-mères sont les véritables maîtresses des emojis. 👑👵",
+            "Sécurité routière : Ne cliquez pas sur les emojis en conduisant. 📵",
+            "Astuce : Pour des emojis plus brillants, polissez votre écran. ✨",
+            "Horoscope : Votre jour sera rempli d'emojis inattendus. 🎁",
+            "Sondage : Quel est votre emoji préféré ? Votez maintenant ! 🗳️",
+            "Célébrité : L'emoji le plus influent du monde est... vous ! 👑"
+        ];
+        let currentNewsIndex = 0;
+
+        // --- Helper Functions ---
+
+        /**
+         * Formats a number with K, M, B, T, etc. suffixes.
+         * @param {number} num - The number to format.
+         * @returns {string} The formatted number string.
+         */
+        function formatNumber(num) {
+            if (num === 0) return '0';
+            if (typeof num !== 'number' || isNaN(num)) return 'NaN';
+
+            const absNum = Math.abs(num); // Use absolute value for formatting
+            if (absNum < 1000) return num.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); // Allow decimals for small numbers
+
+            const si = [
+                { value: 1, symbol: "" },
+                { value: 1E3, symbol: "K" },
+                { value: 1E6, symbol: "M" },
+                { value: 1E9, symbol: "B" },
+                { value: 1E12, symbol: "T" },
+                { value: 1E15, symbol: "Qa" },
+                { value: 1E18, symbol: "Qi" },
+                { value: 1E21, symbol: "Sx" },
+                { value: 1E24, symbol: "Sp" },
+                { value: 1E27, symbol: "Oc" },
+                { value: 1E30, symbol: "No" },
+                { value: 1E33, symbol: "De" }
+            ];
+            const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+            let i;
+            for (i = si.length - 1; i > 0; i--) {
+                if (absNum >= si[i].value) {
+                    break;
+                }
+            }
+            return (num / si[i].value).toFixed(2).replace(rx, "$1") + si[i].symbol;
+        }
+
+        /**
+         * Selects a random emoji from the entire list for the main button.
+         */
+        function selectRandomEmoji() {
+            const randomIndex = Math.floor(Math.random() * cookieEmojis.length);
+            cookieEmojiElement.textContent = cookieEmojis[randomIndex];
+        }
+
+        /**
+         * Updates the display of cookies, CPS, and CPC.
+         */
+        function updateDisplay() {
+            // Specific updates for dynamic content
+            gameTitleElement.textContent = `Pâtisserie ${gameName}`;
+            cookieCountElement.textContent = formatNumber(cookies);
+            cookiesPerSecondElement.textContent = formatNumber(cookiesPerSecond);
+
+            emojiFragmentCountElement.textContent = emojiFragments;
+            prestigeLevelDisplay.textContent = prestigeLevel;
+            celestialFragmentsDisplay.textContent = emojiFragments;
+
+            renderShopUpgrades();
+            renderGenealogyTree(); // Update genealogy tree display
+            checkTrophies();
+        }
+
+        /**
+         * Handles emoji clicking.
+         */
+        function clickCookie() {
+            cookies += cookiesPerClick;
+            totalClicks++;
+            if (totalClicks % 50 === 0) {
+                selectRandomEmoji();
+            }
+            // Removed playSound('clickSound');
+            updateDisplay();
+        }
+
+        let clickInterval = null; // Variable to hold the interval ID for continuous clicking
+
+        function startContinuousClick() {
+            if (clickInterval) return; // Prevent multiple intervals
+            clickInterval = setInterval(clickCookie, 50); // Click every 50ms
+        }
+
+        function stopContinuousClick() {
+            if (clickInterval) {
+                clearInterval(clickInterval);
+                clickInterval = null;
+            }
+        }
+
+
+        /**
+         * Calculates and updates emojis per second, applying upgrade multipliers.
+         */
+        function calculateCookiesPerSecond() {
+            let totalCps = 0;
+            for (const key in upgrades) {
+                const upgrade = upgrades[key];
+                if (upgrade.cps) {
+                    let cpsValue = upgrade.cps * upgrade.owned;
+                    // Apply specific upgrade multipliers from genealogical tree
+                    const multiplierKey = `cps_multiplier_${key}`;
+                    if (upgradeMultipliers[multiplierKey]) {
+                        cpsValue *= (1 + upgradeMultipliers[multiplierKey]);
+                    }
+                    totalCps += cpsValue;
+                }
+            }
+            cookiesPerSecond = totalCps;
+        }
+
+        /**
+         * Calculates and updates cookies per click, applying global and specific multipliers.
+         */
+        function calculateCookiesPerClick() {
+            let baseCpc = 1; // Base click is always 1
+            if (upgrades.cursorUpgrade) { // Check for the specific CPC upgrade
+                baseCpc += upgrades.cursorUpgrade.cpc * upgrades.cursorUpgrade.owned;
+            }
+
+            let totalCpc = baseCpc;
+
+            // Apply global CPC bonus from heritage
+            totalCpc *= (1 + permanentCpcBonus);
+
+            // Apply global CPC multiplier from genealogical tree
+            if (upgradeMultipliers['cpc_global']) {
+                totalCpc *= (1 + upgradeMultipliers['cpc_global']);
+            }
+            
+            cookiesPerClick = totalCpc;
+        }
+
+
+        /**
+         * Buys an upgrade.
+         * @param {string} upgradeKey - The key of the upgrade to buy (e.g., 'grandma').
+         */
+        function buyUpgrade(upgradeKey) {
+            const upgrade = upgrades[upgradeKey];
+            let itemsToBuy = buyQuantity;
+            let totalCost = 0;
+            let actualItemsBought = 0;
+
+            if (buyQuantity === 'custom') {
+                const customValue = parseInt(customBuyQuantityInput.value, 10);
+                if (isNaN(customValue) || customValue < 1) {
+                    // Removed playSound('errorSound');
+                    return;
+                }
+                itemsToBuy = customValue;
+            }
+
+            for (let i = 0; i < itemsToBuy; i++) {
+                const currentCost = Math.ceil(upgrade.baseCost * (upgrade.costMultiplier ** (upgrade.owned + i)));
+                if (cookies >= currentCost) {
+                    totalCost += currentCost;
+                    actualItemsBought++;
+                } else {
+                    break;
+                }
+            }
+
+            if (actualItemsBought > 0) {
+                cookies -= totalCost;
+                upgrade.owned += actualItemsBought;
+                calculateCookiesPerSecond(); // Recalculate CPS if it's a CPS upgrade
+                calculateCookiesPerClick(); // Recalculate CPC if it's a CPC upgrade (like cursorUpgrade)
+                updateDisplay();
+                // Removed playSound('buySound');
+                showNotification(`${actualItemsBought} ${upgrade.name}(s) acheté(s) !`);
+            } else {
+                // Removed playSound('errorSound');
+                showNotification(`Pas assez de Fragments d'Emoji pour acheter ${upgrade.name}. Il vous manque ${formatNumber(currentCost - cookies)} fragments.`);
+            }
+        }
+
+        /**
+         * Renders (or re-renders) the list of upgrades in the shop.
+         */
+        function renderShopUpgrades() {
+            shopUpgradesList.innerHTML = '';
+            const sortedUpgradeKeys = Object.keys(upgrades).sort((a, b) => {
+                const costA = Math.ceil(upgrades[a].baseCost * (upgrades[a].costMultiplier ** upgrades[a].owned));
+                const costB = Math.ceil(upgrades[b].baseCost * (upgrades[b].costMultiplier ** upgrades[b].owned));
+                return costA - costB;
+            });
+
+            for (const key of sortedUpgradeKeys) {
+                const upgrade = upgrades[key];
+                const currentCost = Math.ceil(upgrade.baseCost * (upgrade.costMultiplier ** upgrade.owned));
+                const canAfford = cookies >= currentCost;
+
+                const upgradeDiv = document.createElement('div');
+                upgradeDiv.className = `upgrade-card-shop ${canAfford ? 'affordable' : 'unaffordable'}`;
+                upgradeDiv.dataset.upgradeKey = key;
+
+                let description = '';
+                if (upgrade.cps) {
+                    description = `${formatNumber(upgrade.cps)} 🙂/seconde`;
+                } else if (upgrade.cpc) {
+                    description = `${formatNumber(upgrade.cpc)} 🙂`;
+                }
+
+                upgradeDiv.innerHTML = `
+                    <span class="icon">${upgrade.icon}</span>
+                    <div class="info">
+                        <h3 class="text-xl font-bold">${upgrade.name}</h3>
+                        <p class="text-sm text-gray-400">${description}</p>
+                        <p class="owned-count">Possédé: ${upgrade.owned.toLocaleString('fr-FR')}</p>
+                    </div>
+                    <div class="cost">${formatNumber(currentCost)} 🙂</div>
+                `;
+                shopUpgradesList.appendChild(upgradeDiv);
+
+                upgradeDiv.addEventListener('click', () => {
+                    buyUpgrade(key);
+                });
+            }
+        }
+
+        /**
+         * Checks and unlocks trophies based on current emoji count.
+         */
+        function checkTrophies() {
+            for (const key in trophies) {
+                const trophy = trophies[key];
+                if (!trophy.unlocked && cookies >= trophy.threshold) {
+                    trophy.unlocked = true;
+                    // Removed playSound('notificationSound');
+                    showNotification(`Trophée débloqué ! Félicitations ! Vous avez débloqué le trophée "${trophy.name}" !`);
+                }
+            }
+        }
+
+        /**
+         * Game loop for passive emoji generation and fragment timer update.
+         */
+        function gameLoop() {
+            cookies += cookiesPerSecond / 10; // Adds CPS over 100ms interval
+            updateFragmentTimer();
+            updateDisplay(); // Update display for all stats
+        }
+
+        // --- Fragment Generation Logic ---
+        function updateFragmentTimer() {
+            const now = Date.now();
+            if (nextFragmentTime === 0) { // If it's the very first time loading and no time is set
+                nextFragmentTime = now + (24 * 60 * 60 * 1000); // Set for 24 hours from now
+                localStorage.setItem('nextFragmentTime', nextFragmentTime);
+            } else if (now >= nextFragmentTime) {
+                emojiFragments++;
+                nextFragmentTime = now + (24 * 60 * 60 * 1000); // Set for 24 hours from now
+                localStorage.setItem('nextFragmentTime', nextFragmentTime);
+                // Removed playSound('notificationSound');
+                showNotification("Fragment d'Emoji disponible !");
+            }
+
+            const timeLeft = nextFragmentTime - now;
+            if (timeLeft > 0) {
+                const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+                fragmentTimerElement.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+                fragmentTimerElement.textContent = "Disponible !";
+            }
+        }
+
+        // --- Heritage/Prestige Logic ---
+        function performReincarnation() {
+            showModal("Réincarnation ?", `
+                <p class="mb-4">Êtes-vous sûr de vouloir vous réincarner ? Cela réinitialisera votre progression actuelle (cookies, améliorations, trophées débloqués cette ascension) mais vous donnera un bonus permanent !</p>
+                <p class="font-bold text-yellow-400">Bonus : +0.5% de puissance de clic permanente par Fragment d'Emoji possédé au moment de la réincarnation.</p>
+            `, 'confirm')
+            .then(confirmed => {
+                if (confirmed) {
+                    // Removed playSound('reincarnateSound');
+                    // Reset game state
+                    cookies = 0;
+                    cookiesPerClick = 1; // Base CPC
+                    cookiesPerSecond = 0;
+                    totalClicks = 0;
+                    buyQuantity = 1;
+
+                    for (const key in upgrades) {
+                        upgrades[key].owned = 0;
+                    }
+
+                    // Apply bonus based on fragments *before* resetting fragments
+                    if (emojiFragments > 0) {
+                        permanentCpcBonus += (emojiFragments * 0.005); // Add 0.5% per fragment
+                    }
+                    emojiFragments = 0; // Reset fragments after applying bonus
+                    prestigeLevel++; // Prestige level always increases on reincarnation
+
+                    // Recalculate CPC based on new permanent bonus
+                    calculateCookiesPerClick();
+                    calculateCookiesPerSecond(); // Recalculate CPS as owned upgrades are reset
+
+                    updateDisplay();
+                    saveGame(true); // Auto-save after reincarnation
+                    showNotification(`Réincarnation réussie ! Niveau de Prestige : ${prestigeLevel} !`);
+                } else {
+                    // Removed playSound('errorSound');
+                }
+            });
+        }
+
+        function renderGenealogyTree() {
+            genealogyTreeContainer.innerHTML = ''; // Clear existing tree
+
+            // Sort nodes by their unlock order (based on prerequisites) for consistent display
+            const sortedNodeKeys = Object.keys(genealogicalTreeNodes).sort((a, b) => {
+                const nodeA = genealogicalTreeNodes[a];
+                const nodeB = genealogicalTreeNodes[b];
+                return nodeA.id.localeCompare(nodeB.id);
+            });
+
+            for (const key of sortedNodeKeys) {
+                const node = genealogicalTreeNodes[key];
+                const nodeDiv = document.createElement('div');
+                nodeDiv.dataset.nodeId = key;
+
+                let className = 'genealogy-node';
+                if (node.purchased) {
+                    className += ' purchased';
+                } else if (node.unlocked) {
+                    className += ' unlocked';
+                } else {
+                    className += ' locked';
+                }
+                nodeDiv.className = className;
+
+                nodeDiv.innerHTML = `
+                    <img src="${node.img}" alt="${node.name}">
+                    <p class="font-semibold text-sm">${node.name}</p>
+                    ${!node.purchased ? `<p class="node-cost">${formatNumber(node.cost)} Fragments</p>` : `<p class="text-xs text-gray-400">Acheté</p>`}
+                `;
+                genealogyTreeContainer.appendChild(nodeDiv);
+
+                nodeDiv.addEventListener('click', () => {
+                    if (node.unlocked && !node.purchased) {
+                        purchaseGenealogyNode(key);
+                    } else if (!node.unlocked) {
+                        // Removed playSound('errorSound');
+                        showNotification(`Débloquez les prérequis pour "${node.name}"`, 'info');
+                    }
+                });
+            }
+        }
+
+        function checkAndUnlockGenealogyNodes() {
+            let changed = false;
+            for (const key in genealogicalTreeNodes) {
+                const node = genealogicalTreeNodes[key];
+                if (!node.unlocked && !node.purchased) {
+                    const allPrerequisitesMet = node.prerequisites.every(prereqId => genealogicalTreeNodes[prereqId] && genealogicalTreeNodes[prereqId].purchased);
+                    if (allPrerequisitesMet) {
+                        node.unlocked = true;
+                        changed = true;
+                    }
+                }
+            }
+            if (changed) {
+                updateDisplay(); // Re-render tree if new nodes are unlocked
+            }
+        }
+
+        function purchaseGenealogyNode(nodeId) {
+            const node = genealogicalTreeNodes[nodeId];
+            if (!node || !node.unlocked || node.purchased) {
+                return;
+            }
+
+            if (emojiFragments >= node.cost) {
+                emojiFragments -= node.cost;
+                node.purchased = true;
+                applyGenealogyBonus(node);
+                // Removed playSound('nodePurchaseSound');
+                showNotification(`Nœud "${node.name}" acheté ! Bonus appliqué !`);
+                checkAndUnlockGenealogyNodes(); // Check if new nodes are now unlockable
+                updateDisplay();
+                saveGame(true); // Save game after purchase
+
+                // Check for game end condition
+                const allNodesPurchased = Object.values(genealogicalTreeNodes).every(n => n.purchased);
+                if (allNodesPurchased) {
+                    endGame();
+                }
+
+            } else {
+                // Removed playSound('errorSound');
+                showNotification(`Pas assez de Fragments d'Emoji pour acheter ${node.name}. Il vous manque ${formatNumber(node.cost - emojiFragments)} fragments.`, 'error');
+            }
+        }
+
+        function applyGenealogyBonus(node) {
+            if (node.bonusType === 'cpc_global') {
+                if (!upgradeMultipliers['cpc_global']) {
+                    upgradeMultipliers['cpc_global'] = 0;
+                }
+                upgradeMultipliers['cpc_global'] += node.bonusValue;
+                calculateCookiesPerClick();
+            } else if (node.bonusType.startsWith('cps_multiplier_')) {
+                const upgradeKey = node.bonusType.replace('cps_multiplier_', '');
+                if (upgrades[upgradeKey]) {
+                    if (!upgradeMultipliers[node.bonusType]) {
+                        upgradeMultipliers[node.bonusType] = 0;
+                    }
+                    upgradeMultipliers[node.bonusType] += node.bonusValue;
+                    calculateCookiesPerSecond();
+                }
+            }
+        }
+
+        function endGame() {
+            showModal("Félicitations, Maître des Emojis !", `
+                <p class="text-lg mb-4">Bravo, vous avez conquis l'Arbre Généalogique des Emojis et prouvé votre maîtrise !</p>
+                <p class="text-xl font-bold text-yellow-400 mb-6">Vous êtes plus fort que MOI ! - Vadrix</p>
+                <p class="text-md text-gray-300 mb-4">Tout ceci n'était qu'une simulation, un rêve peut-être. Le monde des emojis vous remercie. Maintenant, le temps est venu de reprendre votre vie normale, sans plus penser à ce jeu. Bonne journée, ${gameName} !</p>
+                <button id="closeGameButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md text-lg">Fermer le jeu</button>
+            `, 'custom')
+            .then(() => {
+                document.getElementById('closeGameButton').addEventListener('click', () => {
+                    saveGame(true);
+                    window.close();
+                    setTimeout(() => {
+                        document.body.innerHTML = `<div class="flex flex-col items-center justify-center min-h-screen text-white text-2xl">Merci d'avoir joué !</div>`;
+                    }, 500);
+                });
+            });
+        }
+
+
+        // --- Save/Load Game Logic ---
+
+        /**
+         * Saves the current game state to a JSON file.
+         * @param {boolean} isAutoSave - True if called by auto-save, false otherwise.
+         */
+        function saveGame(isAutoSave = false) {
+            const gameState = {
+                cookies: cookies,
+                cookiesPerClick: cookiesPerClick,
+                cookiesPerSecond: cookiesPerSecond,
+                totalClicks: totalClicks,
+                buyQuantity: buyQuantity,
+                gameName: gameName,
+                hasCustomizedName: hasCustomizedName,
+                emojiFragments: emojiFragments,
+                nextFragmentTime: nextFragmentTime,
+                prestigeLevel: prestigeLevel,
+                permanentCpcBonus: permanentCpcBonus,
+                upgradeMultipliers: upgradeMultipliers,
+                upgrades: {},
+                trophies: {},
+                genealogicalTreeNodes: {}
+            };
+
+            for (const key in upgrades) {
+                gameState.upgrades[key] = {
+                    owned: upgrades[key].owned,
+                };
+            }
+
+            for (const key in trophies) {
+                gameState.trophies[key] = {
+                    unlocked: trophies[key].unlocked
+                };
+            }
+
+            for (const key in genealogicalTreeNodes) {
+                gameState.genealogicalTreeNodes[key] = {
+                    unlocked: genealogicalTreeNodes[key].unlocked,
+                    purchased: genealogicalTreeNodes[key].purchased
+                };
+            }
+
+            const dataStr = JSON.stringify(gameState, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+
+            if (isAutoSave) {
+                localStorage.setItem('cookieClickerSave', dataStr);
+                localStorage.setItem('gameNameCustomized', hasCustomizedName);
+                localStorage.setItem('customGameName', gameName);
+                showAutoSaveMessage();
+            } else {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cookie_clicker_save.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showNotification("Partie sauvegardée ! Votre partie a été sauvegardée dans \"cookie_clicker_save.json\".");
+            }
+        }
+
+        /**
+         * Loads a game state from a JSON file or localStorage.
+         * @param {Event} event - The file input change event (for manual load).
+         * @param {boolean} fromLocalStorage - True if loading from localStorage on startup.
+         */
+        function loadGame(event, fromLocalStorage = false) {
+            let fileContent;
+
+            if (fromLocalStorage) {
+                fileContent = localStorage.getItem('cookieClickerSave');
+                if (!fileContent) {
+                    console.log("No auto-save found in localStorage.");
+                    // Only set nextFragmentTime if it's truly not set (first ever load)
+                    if (localStorage.getItem('nextFragmentTime') === null) {
+                        nextFragmentTime = Date.now() + (24 * 60 * 60 * 1000);
+                        localStorage.setItem('nextFragmentTime', nextFragmentTime);
+                    } else {
+                        nextFragmentTime = parseFloat(localStorage.getItem('nextFragmentTime')) || (Date.now() + (24 * 60 * 60 * 1000));
+                    }
+                    return;
+                }
+            } else {
+                const file = event.target.files[0];
+                if (!file) {
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    fileContent = e.target.result;
+                    processLoadedGame(fileContent, false);
+                };
+                reader.readAsText(file);
+                return;
+            }
+
+            processLoadedGame(fileContent, true);
+        }
+
+        /**
+         * Processes the loaded game state.
+         * @param {string} content - The JSON string of the game state.
+         * @param {boolean} isAutoLoad - True if loading from auto-save.
+         */
+        function processLoadedGame(content, isAutoLoad) {
+            try {
+                const loadedState = JSON.parse(content);
+
+                if (typeof loadedState.cookies !== 'number' ||
+                    typeof loadedState.cookiesPerClick !== 'number' ||
+                    typeof loadedState.upgrades !== 'object' ||
+                    typeof loadedState.trophies !== 'object' ||
+                    typeof loadedState.genealogicalTreeNodes !== 'object') {
+                    throw new Error("Structure de fichier de sauvegarde invalide.");
+                }
+
+                cookies = loadedState.cookies;
+                cookiesPerClick = loadedState.cookiesPerClick;
+                cookiesPerSecond = loadedState.cookiesPerSecond;
+                totalClicks = loadedState.totalClicks || 0;
+                buyQuantity = loadedState.buyQuantity || 1;
+                gameName = loadedState.gameName || "Pignon Scientifique";
+                hasCustomizedName = loadedState.hasCustomizedName || false;
+
+                emojiFragments = loadedState.emojiFragments || 0;
+                nextFragmentTime = loadedState.nextFragmentTime || (Date.now() + (24 * 60 * 60 * 1000));
+                prestigeLevel = loadedState.prestigeLevel || 0;
+                permanentCpcBonus = loadedState.permanentCpcBonus || 0;
+                upgradeMultipliers = loadedState.upgradeMultipliers || {};
+                
+                updateBuyQuantityButtons();
+                selectRandomEmoji();
+
+                for (const key in upgrades) {
+                    if (loadedState.upgrades[key]) {
+                        upgrades[key].owned = loadedState.upgrades[key].owned || 0;
+                    } else {
+                        upgrades[key].owned = 0;
+                    }
+                }
+
+                for (const key in trophies) {
+                    if (loadedState.trophies[key]) {
+                        trophies[key].unlocked = loadedState.trophies[key].unlocked || false;
+                    } else {
+                        trophies[key].unlocked = false;
+                    }
+                }
+
+                for (const key in genealogicalTreeNodes) {
+                    if (loadedState.genealogicalTreeNodes[key]) {
+                        genealogicalTreeNodes[key].unlocked = loadedState.genealogicalTreeNodes[key].unlocked;
+                        genealogicalTreeNodes[key].purchased = loadedState.genealogicalTreeNodes[key].purchased;
+                    } else {
+                        genealogicalTreeNodes[key].unlocked = false;
+                        genealogicalTreeNodes[key].purchased = false;
+                    }
+                }
+                if (genealogicalTreeNodes.node1) genealogicalTreeNodes.node1.unlocked = true;
+
+
+                calculateCookiesPerSecond();
+                calculateCookiesPerClick();
+                updateDisplay();
+                showNotification("Partie chargée ! Votre partie a été chargée avec succès.");
+
+                if (!isAutoLoad && !hasCustomizedName) {
+                    promptForGameName();
+                }
+
+            } catch (error) {
+                console.error('Erreur lors du chargement de la partie:', error);
+                showNotification(`Erreur de chargement: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Resets the game to its initial state.
+         */
+        function resetGame() {
+            showModal("Réinitialiser la partie ?", "Êtes-vous sûr de vouloir réinitialiser toute votre progression ? Cette action est irréversible.", 'confirm')
+                .then(confirmed => {
+                    if (confirmed) {
+                        // Removed playSound('errorSound'); // Play sound for reset confirmation
+                        cookies = 0;
+                        cookiesPerClick = 1;
+                        cookiesPerSecond = 0;
+                        totalClicks = 0;
+                        buyQuantity = 1;
+                        gameName = "Pignon Scientifique";
+                        hasCustomizedName = false;
+                        emojiFragments = 0;
+                        nextFragmentTime = Date.now() + (24 * 60 * 60 * 1000);
+                        prestigeLevel = 0;
+                        permanentCpcBonus = 0;
+                        upgradeMultipliers = {};
+
+                        localStorage.removeItem('gameNameCustomized');
+                        localStorage.removeItem('customGameName');
+                        localStorage.removeItem('nextFragmentTime');
+                        localStorage.removeItem('cookieClickerSave'); // Remove the main save file
+
+                        updateBuyQuantityButtons();
+                        selectRandomEmoji();
+
+                        for (const key in upgrades) {
+                            upgrades[key].owned = 0;
+                        }
+
+                        for (const key in trophies) {
+                            trophies[key].unlocked = false;
+                        }
+
+                        for (const key in genealogicalTreeNodes) {
+                            genealogicalTreeNodes[key].unlocked = false;
+                            genealogicalTreeNodes[key].purchased = false;
+                        }
+                        if (genealogicalTreeNodes.node1) genealogicalTreeNodes.node1.unlocked = true;
+
+                        calculateCookiesPerSecond();
+                        calculateCookiesPerClick();
+                        updateDisplay();
+                        showNotification("Partie réinitialisée ! Votre partie a été réinitialisée avec succès.");
+                        promptForGameName();
+                    }
+                });
+        }
+
+        /**
+         * Updates the active state of the buy quantity buttons.
+         */
+        function updateBuyQuantityButtons() {
+            buyQuantity1Button.classList.remove('active');
+            buyQuantity10Button.classList.remove('active');
+            buyQuantity100Button.classList.remove('active');
+
+            if (buyQuantity === 1) {
+                buyQuantity1Button.classList.add('active');
+            } else if (buyQuantity === 10) {
+                buyQuantity10Button.classList.add('active');
+            } else if (buyQuantity === 100) {
+                buyQuantity100Button.classList.add('active');
+            }
+        }
+
+        // --- Custom Modal Functions ---
+        function showModal(title, contentHtml, type) {
+            return new Promise(resolve => {
+                modalTitle.textContent = title;
+                modalMessage.innerHTML = contentHtml;
+
+                modalConfirm.classList.add('hidden');
+                modalCancel.classList.add('hidden');
+                modalClose.classList.remove('hidden');
+
+                if (type === 'confirm') {
+                    modalConfirm.classList.remove('hidden');
+                    modalCancel.classList.remove('hidden');
+                    modalClose.classList.add('hidden');
+                    modalConfirm.onclick = () => {
+                        customModal.classList.add('hidden');
+                        resolve(true);
+                    };
+                    modalCancel.onclick = () => {
+                        customModal.classList.add('hidden');
+                        resolve(false);
+                    };
+                } else {
+                    modalClose.onclick = () => {
+                        customModal.classList.add('hidden');
+                        resolve(true);
+                    };
+                }
+
+                customModal.classList.remove('hidden');
+            });
+        }
+
+        /**
+         * Displays a temporary auto-save message.
+         */
+        function showAutoSaveMessage() {
+            autoSaveMessageElement.classList.add('show');
+            setTimeout(() => {
+                autoSaveMessageElement.classList.remove('show');
+            }, 2000);
+        }
+
+        /**
+         * Displays a discrete notification at the top of the screen.
+         * @param {string} message - The message to display.
+         */
+        function showNotification(message) {
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout);
+                notificationMessageElement.classList.remove('show');
+                setTimeout(() => {
+                    notificationTextElement.textContent = message;
+                    notificationMessageElement.classList.add('show');
+                }, 50);
+            } else {
+                notificationTextElement.textContent = message;
+                notificationMessageElement.classList.add('show');
+            }
+
+            notificationTimeout = setTimeout(() => {
+                notificationMessageElement.classList.remove('show');
+                notificationTimeout = null;
+            }, 5000);
+        }
+
+        // --- News Ticker Logic ---
+        function updateNewsTicker() {
+            currentNewsIndex = Math.floor(Math.random() * newsMessages.length);
+            newsTextElement.textContent = newsMessages[currentNewsIndex];
+            newsTextElement.style.animation = 'none';
+            void newsTextElement.offsetWidth;
+            newsTextElement.style.animation = null;
+        }
+
+        // --- Functions to generate modal content ---
+        function getSettingsModalContent() {
+            return `
+                <h2 class="text-2xl font-bold text-yellow-300 mb-4 text-center">Paramètres & Sauvegarde</h2>
+                <div class="flex flex-col gap-4">
+                    <button id="saveGameButtonModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-300">Sauvegarder la partie</button>
+                    <input type="file" id="loadGameInputModal" accept=".json" class="hidden">
+                    <button id="loadGameButtonModal" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-purple-300">Charger une partie</button>
+                    <button id="resetGameButtonModal" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-red-300">Réinitialiser la partie</button>
+                </div>
+            `;
+        }
+
+        function getTrophiesModalContent() {
+            let trophiesHtml = `<h2 class="text-2xl font-bold text-yellow-300 mb-4 text-center">Statistiques Actuelles</h2><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">`;
+            for (const key in trophies) {
+                const trophy = trophies[key];
+                const unlockedClass = trophy.unlocked ? 'unlocked' : '';
+                const imgSrc = trophy.unlocked ? trophy.img : 'https://placehold.co/64x64/2a1a0a/FFFFFF?text=%3F'; // Question mark for locked
+                trophiesHtml += `
+                    <div class="trophy-card ${unlockedClass}">
+                        <img src="${imgSrc}" alt="${trophy.name}" class="w-16 h-16 mb-2">
+                        <p class="text-sm text-gray-700 text-center">${trophy.name}</p>
+                    </div>
+                `;
+            }
+            trophiesHtml += `</div>`;
+            return trophiesHtml;
+        }
+
+        function getStatsModalContent() {
+            let statsHtml = `<h2 class="text-2xl font-bold text-yellow-300 mb-4 text-center">Statistiques Actuelles</h2>`;
+            statsHtml += `<div class="text-left text-gray-300 space-y-2 text-md">`;
+            statsHtml += `<p><strong>Cookies en banque :</strong> ${formatNumber(cookies)}</p>`;
+            statsHtml += `<p><strong>Cookies par seconde :</strong> ${formatNumber(cookiesPerSecond)}</p>`;
+            statsHtml += `<p><strong>Clics de cookies :</strong> ${formatNumber(totalClicks)}</p>`;
+            statsHtml += `<p><strong>Niveau de Prestige :</strong> ${prestigeLevel}</p>`;
+            statsHtml += `<p><strong>Fragments d'Emoji :</strong> ${emojiFragments}</p>`;
+
+            statsHtml += `<h3 class="font-bold text-yellow-200 mt-4">Améliorations Possédées</h3>`;
+            statsHtml += `<div class="flex flex-wrap gap-2 mt-2">`;
+            let ownedUpgradesCount = 0;
+            for (const key in upgrades) {
+                if (upgrades[key].owned > 0) {
+                    statsHtml += `<div class="flex items-center p-2 bg-gray-600 rounded-md">
+                                    <span class="text-2xl mr-1">${upgrades[key].icon}</span>
+                                    <span class="text-sm">${upgrades[key].name}</span>
+                                  </div>`;
+                    ownedUpgradesCount++;
+                }
+            }
+            if (ownedUpgradesCount === 0) {
+                statsHtml += `<p class="text-gray-400">Aucune amélioration possédée pour le moment.</p>`;
+            }
+            statsHtml += `</div>`;
+
+            statsHtml += `<h3 class="font-bold text-yellow-200 mt-4">Multiplicateurs Permanents</h3>`;
+            statsHtml += `<div class="text-left text-gray-300 space-y-1 text-sm">`;
+            let hasMultipliers = false;
+            if (permanentCpcBonus > 0) {
+                statsHtml += `<p><strong>Bonus de Réincarnation (CPC) :</strong> +${(permanentCpcBonus * 100).toFixed(2)}%</p>`;
+                hasMultipliers = true;
+            }
+            for (const key in upgradeMultipliers) {
+                const value = upgradeMultipliers[key];
+                if (value > 0) {
+                    if (key === 'cpc_global') {
+                        statsHtml += `<p><strong>Bonus global de clic (Arbre) :</strong> +${(value * 100).toFixed(0)}%</p>`;
+                    } else if (key.startsWith('cps_multiplier_')) {
+                        const upgradeName = upgrades[key.replace('cps_multiplier_', '')]?.name || 'Inconnu';
+                        statsHtml += `<p><strong>Bonus de production (${upgradeName}) :</strong> +${(value * 100).toFixed(0)}%</p>`;
+                    }
+                    hasMultipliers = true;
+                }
+            }
+            if (!hasMultipliers) {
+                statsHtml += `<p class="text-gray-400">Aucun multiplicateur permanent actif.</p>`;
+            }
+            statsHtml += `</div>`;
+
+            statsHtml += `</div>`;
+            return statsHtml;
+        }
+
+
+        function getInfosModalContent() {
+            return `
+                <h2 class="text-2xl font-bold text-yellow-300 mb-4 text-center">Informations sur le jeu</h2>
+                <div class="text-left text-gray-300 text-sm w-full">
+                    <p class="mb-2"><strong>Créateur :</strong> Vadrix</p>
+                    <p class="mb-4"><strong>Version :</strong> 1.0 (Mai 2025)</p>
+                    <h3 class="font-bold text-yellow-200 mb-2">Confidentialité & Mentions Légales</h3>
+                    <p class="mb-2">Ce jeu ne collecte aucune donnée personnelle. Votre progression est stockée localement dans votre navigateur (localStorage) et reste privée.</p>
+                    <p class="mb-4">Aucune publicité, aucun traqueur. Le jeu est fourni 'tel quel'.</p>
+                    <p><strong>Inspiration :</strong> Cookie Clicker par Orteil.</p>
+                </div>
+            `;
+        }
+
+        function promptForGameName() {
+            if (hasCustomizedName) return;
+
+            showModal("Nommez votre Pâtisserie !", `
+                <p class="mb-4">Bienvenue ! Veuillez donner un nom à votre pâtisserie. 'Pâtisserie ' sera ajouté automatiquement.</p>
+                <input type="text" id="newGameNameInput" placeholder="Votre nom de pâtisserie" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:border-blue-500">
+            `, 'confirm')
+            .then(confirmed => {
+                if (confirmed) {
+                    const input = document.getElementById('newGameNameInput');
+                    let newName = input.value.trim();
+                    if (newName) {
+                        gameName = newName;
+                        hasCustomizedName = true;
+                        localStorage.setItem('gameNameCustomized', 'true');
+                        localStorage.setItem('customGameName', gameName);
+                        updateDisplay();
+                        showNotification(`Le nom de votre pâtisserie est maintenant "Pâtisserie ${gameName}" !`);
+                    } else {
+                        // Removed playSound('errorSound');
+                        showNotification("Nom non valide. Le nom par défaut sera utilisé.", 'error');
+                    }
+                } else {
+                    // Removed playSound('errorSound');
+                    showNotification("Vous avez annulé la personnalisation du nom. Le nom par défaut sera utilisé.", 'info');
+                }
+            });
+        }
+
+        // --- Event Listeners ---
+        window.onload = function() {
+            // Load settings first.
+            loadGame(null, true); 
+
+            // Ensure initial display update reflects loaded state
+            updateDisplay();
+            selectRandomEmoji();
+
+            // Set up game loops
+            setInterval(gameLoop, 100);
+            setInterval(() => saveGame(true), 300000); // Auto-save every 5 minutes
+            setInterval(updateNewsTicker, 15000); // Update news every 15 seconds
+
+            // Cookie button continuous click
+            cookieButton.addEventListener('mousedown', startContinuousClick);
+            cookieButton.addEventListener('mouseup', stopContinuousClick);
+            cookieButton.addEventListener('mouseleave', stopContinuousClick); // Stop if mouse leaves while held
+
+            // Event Listeners for buy quantity buttons
+            buyQuantity1Button.addEventListener('click', () => { buyQuantity = 1; updateBuyQuantityButtons(); /* Removed playSound('clickSound'); */ });
+            buyQuantity10Button.addEventListener('click', () => { buyQuantity = 10; updateBuyQuantityButtons(); /* Removed playSound('clickSound'); */ });
+            buyQuantity100Button.addEventListener('click', () => { buyQuantity = 100; updateBuyQuantityButtons(); /* Removed playSound('clickSound'); */ });
+            
+            buyCustomQuantityButton.addEventListener('click', () => {
+                buyQuantity = 'custom';
+                updateBuyQuantityButtons();
+                updateDisplay();
+                // Removed playSound('clickSound');
+            });
+
+            optionsLink.addEventListener('click', () => {
+                showModal("Paramètres & Sauvegarde", getSettingsModalContent(), 'custom')
+                    .then(() => {
+                        // Attach listeners for buttons inside the modal after it's shown
+                        document.getElementById('saveGameButtonModal').addEventListener('click', () => { saveGame(false); /* Removed playSound('clickSound'); */ });
+                        const loadGameInputModal = document.getElementById('loadGameInputModal');
+                        document.getElementById('loadGameButtonModal').addEventListener('click', () => { loadGameInputModal.click(); /* Removed playSound('clickSound'); */ });
+                        loadGameInputModal.addEventListener('change', (e) => processLoadedGame(e.target.files[0], false));
+                        document.getElementById('resetGameButtonModal').addEventListener('click', () => { resetGame(); /* Removed playSound('clickSound'); */ });
+                    });
+            });
+
+            statsLink.addEventListener('click', () => {
+                showModal("Statistiques Actuelles", getStatsModalContent(), 'custom');
+                // Removed playSound('clickSound');
+            });
+
+            heritageLink.addEventListener('click', () => {
+                heritageModal.classList.remove('hidden');
+                checkAndUnlockGenealogyNodes();
+                // Removed playSound('clickSound');
+            });
+            heritageModalClose.addEventListener('click', () => {
+                heritageModal.classList.add('hidden');
+                // Removed playSound('clickSound');
+            });
+            reincarnateButton.addEventListener('click', performReincarnation);
+
+            infoLink.addEventListener('click', () => {
+                showModal("Informations sur le jeu", getInfosModalContent(), 'custom');
+                // Removed playSound('clickSound');
+            });
+
+            notificationCloseButton.addEventListener('click', () => {
+                notificationMessageElement.classList.remove('show');
+                if (notificationTimeout) {
+                    clearTimeout(notificationTimeout);
+                    notificationTimeout = null;
+                }
+            });
+
+            autoSaveCloseButton.addEventListener('click', () => {
+                autoSaveMessageElement.classList.remove('show');
+            });
+
+            // Initial rendering of shop upgrades
+            renderShopUpgrades();
+        };
+    </script>
+</body>
+</html>
